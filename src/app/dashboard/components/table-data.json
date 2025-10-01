@@ -1,0 +1,26 @@
+{
+  "tableData": [
+    {
+      "id": "1",
+      "date": "2024-09-15",
+      "loaderId": "LDR001",
+      "templateName": "New Business Template",
+      "loaderType": "Bulk Loader",
+      "uploadedBy": "John Smith",
+      "action" : "download"
+    },
+    {
+      "id": "1",
+      "date": "2024-09-15",
+      "loaderId": "LDR001",
+      "templateName": "New Business Template",
+      "loaderType": "Bulk Loader",
+      "uploadedBy": "John Smith",
+      "action" : "download"
+    } 
+  ],
+
+  "partnerItems" : [
+    "Vikram", "Vicky", "Prince", "Rohan"
+  ]
+}
