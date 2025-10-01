@@ -26,6 +26,7 @@ import { useCallback, useState } from "react";
 // import AvatarImage from "../../../assets/avatar.png";
 import AvatarImage from "../../../assets/avatar.png";
 import HLIInspireLogo from "../../../assets/templates/logos/HLI_Inspire_Logo.svg";
+import { PartnerProvider } from "../../context/partners";
 
 export default function DashboardBase({ children }) {
   // Single state for sidebar toggle
@@ -106,6 +107,11 @@ export default function DashboardBase({ children }) {
                 leftSection: <Handshake />,
                 active: false,
                 links: [
+                  {
+                    label: "Partner registration",
+                    href: "#/partner/onboarding",
+                    leftSection: <Users />,
+                  },
                   {
                     label: "Policy plan setup",
                     href: "#/partner/onboarding",
@@ -223,24 +229,26 @@ export default function DashboardBase({ children }) {
           )}
         >
           {/* Add your main content here */}
-          {children}
-        </main>
-
-        {/* Right Drawer - Only render when open */}
-        {isDrawerOpen && (
-          <aside
-            className={clsx(
-              "fixed right-0 top-0 bottom-0 pt-[var(--header-height)] z-[2]",
-              "bg-white border-l border-gray-200 shadow-lg",
-              "transition-all duration-300 w-[300px]",
-              "animate-in slide-in-from-right"
+          <PartnerProvider>
+            {children}
+            
+            {/* Right Drawer - Only render when open */}
+            {isDrawerOpen && (
+              <aside
+                className={clsx(
+                  "fixed right-0 top-0 bottom-0 pt-[var(--header-height)] z-[2]",
+                  "bg-white border-l border-gray-200 shadow-lg",
+                  "transition-all duration-300 w-[300px]",
+                  "animate-in slide-in-from-right"
+                )}
+              >
+                <div className="h-full w-full overflow-y-auto">
+                  <CustomDrawer />
+                </div>
+              </aside>
             )}
-          >
-            <div className="h-full w-full overflow-y-auto">
-              <CustomDrawer />
-            </div>
-          </aside>
-        )}
+          </PartnerProvider>
+        </main>
       </div>
     </div>
   );
