@@ -1,5 +1,4 @@
 import "./globals.css";
-import "../../node_modules/@hdfclife-insurance/one-x-ui/styles.css";
 import { TableProvider } from "../context/tableContext.tsx";
 
 export const metadata = {

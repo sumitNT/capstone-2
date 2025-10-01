@@ -127,7 +127,7 @@ export default function CustomTable() {
         </Table.Head>
         <Table.Body> 
           {tableData.map((row, index) => (
-            <Table.Row key={row.id || index}>
+            <Table.Row key={`${row.id}-${index}`}>
               <Table.Cell>{row.date}</Table.Cell>
               <Table.Cell>{row.loaderId}</Table.Cell>
               <Table.Cell>{row.templateName}</Table.Cell>

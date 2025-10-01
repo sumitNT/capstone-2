@@ -1,12 +1,14 @@
 "use client";
 
-import { Button, Select, Upload } from "@hdfclife-insurance/one-x-ui";
+import { Button, Select, Upload, Text } from "@hdfclife-insurance/one-x-ui";
 import React from "react";
 import CustomTable from "./components/Table";
-import data from "./components/table-data.json"
+import data from "./components/table-data.json";
+import Link from "next/link";
 
 export default function Dashboard() {
-  const partnerData = data.partnerItems
+  const partnerData = data.partnerItems;
+  
   return (
     <div className="flex flex-col gap-[24px]">
       <div className="flex flex-col gap-[24px] border border-gray-300 rounded-[8px] p-4 bg-white">

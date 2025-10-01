@@ -10,12 +10,12 @@
       "action" : "download"
     },
     {
-      "id": "1",
-      "date": "2024-09-15",
-      "loaderId": "LDR001",
-      "templateName": "New Business Template",
-      "loaderType": "Bulk Loader",
-      "uploadedBy": "John Smith",
+      "id": "2",
+      "date": "2024-09-14",
+      "loaderId": "LDR002",
+      "templateName": "Policy Amendment Template",
+      "loaderType": "Single Entry",
+      "uploadedBy": "Jane Doe",
       "action" : "download"
     } 
   ],
