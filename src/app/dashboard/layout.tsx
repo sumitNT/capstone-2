@@ -29,6 +29,7 @@ import { usePathname } from "next/navigation";
 // import AvatarImage from "../../../assets/avatar.png";
 // import AvatarImage from "../../../assets/avatar.png";
 import HLIInspireLogo from "../../../assets/templates/logos/HLI_Inspire_Logo.svg";
+import { PartnerProvider } from "../../context/partners";
 
 export default function DashboardBase({ children }) {
   // Single state for sidebar toggle
@@ -233,7 +234,125 @@ export default function DashboardBase({ children }) {
           <CollapsibleSidebar
             key={`sidebar-${isHydrated}`}
             collapsed={!isSidebarOpen}
-            items={sidebarItems()}
+
+            items={[
+              // Single sidebar links
+              {
+                label: "New business",
+                href: "#",
+                leftSection: <Users />,
+                active: true,
+              },
+              // Sidebar section with grouped links
+              {
+                title: "Partner Management",
+                leftSection: <Handshake />,
+                active: false,
+                links: [
+                  {
+                    label: "Partner registration",
+                    href: "#/partner/onboarding",
+                    leftSection: <Users />,
+                  },
+                  {
+                    label: "Policy plan setup",
+                    href: "#/partner/onboarding",
+                    leftSection: <Users />,
+                  },
+                  {
+                    label: "Leader setup",
+                    href: "#/partner/directory",
+                    // leftSection: <Copy />,
+                  },
+                  {
+                    label: "Derivation config",
+                    href: "#/partner/reports",
+                    leftSection: <ChartPie />,
+                  },
+                ]
+              },
+              {
+                label: "MPH onboarding",
+                href: "#",
+                leftSection: <ShieldCheck />,
+              },
+              // Another section for Reports & Analytics
+              {
+                title: "Reports & downloads",
+                leftSection: <Copy />,
+                active: false,
+                links: [
+                  {
+                    label: "New business",
+                    href: "#/reports/business",
+                    leftSection: <Copy />,
+                  },
+                  {
+                    label: "FR documents",
+                    href: "#/reports/fund",
+                    leftSection: <ChartPie />,
+                  },
+                  {
+                    label: "MIF documents",
+                    href: "#/reports/claims",
+                    leftSection: <ShieldCheck />,
+                  },
+                  {
+                    label: "Claims",
+                    href: "#/reports/claims",
+                    leftSection: <ShieldCheck />,
+                  },
+                  {
+                    label: "FR docs (Claims)",
+                    href: "#/reports/claims",
+                    leftSection: <WifiNone/>,
+                  },
+                  {
+                    label: "COIs",
+                    href: "#/reports/claims",
+                    leftSection: <WifiNone />,
+                  },
+                  {
+                    label: "Pre issuance cancellation",
+                    href: "#/reports/claims",
+                    leftSection: <WifiNone/>,
+                  },
+                ]
+              },
+              {
+                label: "Fund management",
+                href: "#",
+                leftSection: <ChartPie />,
+              },
+              {
+                label: "Claims",
+                href: "#",
+                leftSection: <ShieldCheck />,
+              },
+              // User Management section
+              {
+                title: "User Management",
+                leftSection: <UserCircleGear />,
+                active: false,
+                links: [
+                  {
+                    label: "Manage Users",
+                    href: "#/users/manage",
+                    leftSection: <UserCircleGear />,
+                  },
+                  {
+                    label: "My Team",
+                    href: "#/users/team",
+                    leftSection: <UsersThree />,
+                  },
+                  {
+                    label: "User Roles",
+                    href: "#/users/roles",
+                    leftSection: <Users />,
+                  },
+                ]
+              },
+            ]}
           />
         </aside>
 
@@ -252,24 +371,26 @@ export default function DashboardBase({ children }) {
           )}
         >
           {/* Add your main content here */}
-          {children}
-        </main>
-
-        {/* Right Drawer - Only render when open */}
-        {isDrawerOpen && (
-          <aside
-            className={clsx(
-              "fixed right-0 top-0 bottom-0 pt-[var(--header-height)] z-[2]",
-              "bg-white border-l border-gray-200 shadow-lg",
-              "transition-all duration-300 w-[300px]",
-              "animate-in slide-in-from-right"
+          <PartnerProvider>
+            {children}
+            
+            {/* Right Drawer - Only render when open */}
+            {isDrawerOpen && (
+              <aside
+                className={clsx(
+                  "fixed right-0 top-0 bottom-0 pt-[var(--header-height)] z-[2]",
+                  "bg-white border-l border-gray-200 shadow-lg",
+                  "transition-all duration-300 w-[300px]",
+                  "animate-in slide-in-from-right"
+                )}
+              >
+                <div className="h-full w-full overflow-y-auto">
+                  <CustomDrawer />
+                </div>
+              </aside>
             )}
-          >
-            <div className="h-full w-full overflow-y-auto">
-              <CustomDrawer />
-            </div>
-          </aside>
-        )}
+          </PartnerProvider>
+        </main>
       </div>
     </div>
   );

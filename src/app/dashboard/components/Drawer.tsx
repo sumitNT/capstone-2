@@ -4,8 +4,11 @@ import {
   Upload,
 } from "@hdfclife-insurance/one-x-ui";
 import React from "react";
+import { usePartnerContext } from "../../../context/partners";
 
 export default function CustomDrawer() {
+    const { partnerList, fetchPartners, partnerLoaderConfigList, fetchPartnerLoaderConfig, activePartnerId } = usePartnerContext();
+  
   return (
     <div className="w-full h-full p-4">
       <Text
@@ -33,27 +36,20 @@ export default function CustomDrawer() {
         
         <div className="relative">
           <Select
-          valuePlaceholder="Partner"
-            items={[
-              "Aadhar Card",
-              "PAN Card",
-              "Voter ID", 
-              "Passport",
-              "Driving License",
-            ]}
+            valuePlaceholder="Partner"
+            onClick={fetchPartners}
+            items={partnerList.map((p) => ({
+              value: p.id,
+              label: p.name,
+              onClick: () => fetchPartnerLoaderConfig(p),
+            }))}
           />
         </div>
 
         <div className="relative">
           <Select
-          valuePlaceholder="Loader Type"
-            items={[
-              "Aadhar Card",
-              "PAN Card",
-              "Voter ID",
-              "Passport", 
-              "Driving License",
-            ]}
+            valuePlaceholder="Loader Type"
+            items={["a", "b", "c"]}
           />
         </div>
 

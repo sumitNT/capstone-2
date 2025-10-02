@@ -64,3 +64,65 @@ file naming
 1. for not found page => not-found.tsx
 
 2.
+
+
+
+
+
+
+// Get Partners
+    request:- https://localhost:8080/api/partners/name
+    method:- GET
+    response:- {
+        "success": true,
+        "partners": [
+            { "id" : 1, "name": "Partner 1" },
+            {"id" : 2, "name": "Partner 2" }
+        ]
+    }
+    
+// Get config
+    requets:- https://api.example.com/partners {body: partnerId}
+   
+
+ 
+
+
+// Axios GET request
+ const response = axios.get(url, {
+    baseURL: '',
+    params: {key: value},
+    headers: {},
+    timeout: 10000,
+    responseType: 'json',
+ })
+
+
+ response = {
+    data:<any> The response body (usually JSON),
+    status:<number> HTTP status code (e.g. 200, 404),
+    statusText:<string> HTTP status text (e.g. "OK", "Not Found"),
+    headers:<object> Response headers,
+    config:<object> The original Axios request config
+    request:<object> The actual request object (browser XMLHttpRequest) or Node.js request
+ }
+
+
+ // Axios POST request
+    axios.post(url, data, config)
+        url => API endpoint
+        data => the payload you want to send in the request body
+        config => optional config object (headers, timeout, etc.)
+    // example
+        axios.post('https://api.example.com/create', 
+        { name: 'John', age: 30 },
+        {
+            headers: {
+            'Authorization': 'Bearer YOUR_TOKEN',
+            'Content-Type': 'application/json'
+            },
+            timeout: 7000
+        }
+    )
+.then(res => console.log(res.data))
+.catch(err => console.error(err));

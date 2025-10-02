@@ -16,6 +16,7 @@
       "templateName": "Policy Amendment Template",
       "loaderType": "Single Entry",
       "uploadedBy": "Jane Doe",
+
       "action" : "download"
     } 
   ],

@@ -8,15 +8,21 @@ import {
 import { ArrowUp } from "@phosphor-icons/react/dist/ssr";
 import React, { useState } from "react";
 import { useTableContext } from "../../../context/tableContext";
-import Link from "next/link";
+import { usePartnerContext } from "../../../context/partners";
 import data from "./table-data.json"
 
-
 export default function CustomTable() {
-
   const {sortConfig, handleSortToggle} = useTableContext();
-  const tableData = data.tableData
-  console.log(data)
+  const { partnerLoaderConfigList, setActiveConfig, activeConfig } = usePartnerContext();
+  
+  // Use context data if available, fallback to JSON data
+  const tableData = partnerLoaderConfigList.length > 0 ? partnerLoaderConfigList : data.tableData;
+  console.log("Table data:", tableData);
+  
+  const handleRowClick = (config: any) => {
+    setActiveConfig(config);
+    console.log("Active config set:", config);
+  };
   
   return (
     <>
@@ -126,16 +132,25 @@ export default function CustomTable() {
           </Table.Row>
         </Table.Head>
         <Table.Body> 
-          {tableData.map((row, index) => (
-            <Table.Row key={`${row.id}-${index}`}>
-              <Table.Cell>{row.date}</Table.Cell>
-              <Table.Cell>{row.loaderId}</Table.Cell>
-              <Table.Cell>{row.templateName}</Table.Cell>
-              <Table.Cell>{row.loaderType}</Table.Cell>
-              <Table.Cell>{row.uploadedBy}</Table.Cell>
-              <Table.Cell>{row.action}</Table.Cell>
-            </Table.Row>
-          ))}
+
+          {tableData.map((row, index) => {
+            const isActive = activeConfig && activeConfig.loaderId === row.loaderId;
+            return (
+              <Table.Row 
+                key={row.id || index}
+                onClick={() => handleRowClick(row)}
+                className={`cursor-pointer hover:bg-gray-50 ${isActive ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+              >
+                <Table.Cell>{row.date}</Table.Cell>
+                <Table.Cell>{row.loaderId}</Table.Cell>
+                <Table.Cell>{row.templateName}</Table.Cell>
+                <Table.Cell>{row.loaderType}</Table.Cell>
+                <Table.Cell>{row.uploadedBy}</Table.Cell>
+                <Table.Cell>{row.action}</Table.Cell>
+              </Table.Row>
+            );
+          })}
+
         </Table.Body>
       </Table>
     </>
