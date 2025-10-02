@@ -132,6 +132,7 @@ export default function CustomTable() {
           </Table.Row>
         </Table.Head>
         <Table.Body> 
+
           {tableData.map((row, index) => {
             const isActive = activeConfig && activeConfig.loaderId === row.loaderId;
             return (
@@ -149,6 +150,7 @@ export default function CustomTable() {
               </Table.Row>
             );
           })}
+
         </Table.Body>
       </Table>
     </>

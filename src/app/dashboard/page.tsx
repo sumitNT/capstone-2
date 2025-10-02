@@ -1,8 +1,9 @@
 "use client";
 
-import { Button, Select, Upload } from "@hdfclife-insurance/one-x-ui";
+import { Button, Select, Upload, Text } from "@hdfclife-insurance/one-x-ui";
 import React from "react";
 import CustomTable from "./components/Table";
+
 // import data from "./components/table-data.json" 
 import { usePartnerContext } from "../../context/partners";
 
