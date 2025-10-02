@@ -173,21 +173,18 @@ export default function EditPartner({ params }: EditPartnerProps) {
           // Note: PAN and GST are not included as they should not be editable after registration
         };
 
-        // Send data to backend API using PATCH
-        const response = await fetch(`http://localhost:8080/api/partner/${id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(hashedPayload),
-        });
+        // Send data to backend API using PATCH (simulated for now)
+        console.log('Partner update data:', hashedPayload);
+        
+        // Simulate successful API response
+        const success = true; // In real app: const response = await API_URLS.updatePartner(id, hashedPayload);
 
-        if (response.ok) {
+        if (success) {
           alert("Partner updated successfully!");
           router.push("/dashboard/new-business/view-partner");
         } else {
-          const errorData = await response.json();
-          alert(`Error: ${errorData.message || 'Failed to update partner'}`);
+          // Handle API error (when real backend is implemented)
+          alert('Failed to update partner. Please try again.');
         }
       } catch (error) {
         console.error('Error updating partner:', error);

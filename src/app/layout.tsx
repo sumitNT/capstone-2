@@ -1,6 +1,7 @@
 import "./globals.css";
 import "../../node_modules/@hdfclife-insurance/one-x-ui/styles.css";
 import { TableProvider } from "../context/tableContext";
+import { PartnerProvider } from "../context/partners";
 import { ReactNode } from "react";
 
 export const metadata = {
@@ -16,7 +17,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body>
-        <TableProvider>{children}</TableProvider>
+        <TableProvider>
+          <PartnerProvider>
+            {children}
+          </PartnerProvider>
+        </TableProvider>
       </body>
     </html>
   );
