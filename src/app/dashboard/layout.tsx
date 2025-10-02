@@ -17,6 +17,7 @@ import {
   Eye,
   Handshake,
   ShieldCheck,
+  UploadSimple,
   UserCircleGear,
   UserCirclePlus,
   Users,
@@ -30,13 +31,26 @@ import { usePathname } from "next/navigation";
 // import AvatarImage from "../../../assets/avatar.png";
 import HLIInspireLogo from "../../../assets/templates/logos/HLI_Inspire_Logo.svg";
 import { PartnerProvider } from "../../context/partners";
+import { DrawerProvider, useDrawerContext } from "../../context/drawerContext";
+import { usePartnerContext } from "../../context/partners";
 
 export default function DashboardBase({ children }) {
+  return (
+    <DrawerProvider>
+      <PartnerProvider>
+        <DashboardLayout>{children}</DashboardLayout>
+      </PartnerProvider>
+    </DrawerProvider>
+  );
+}
+
+function DashboardLayout({ children }) {
   // Single state for sidebar toggle
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const pathname = usePathname();
+  const { isDrawerOpen } = useDrawerContext();
+  const { activePartnerId, activeConfig, isUploading, handleQuickSubmit } = usePartnerContext();
 
   // Fix hydration issues
   useEffect(() => {
@@ -48,9 +62,7 @@ export default function DashboardBase({ children }) {
     setSidebarOpen(pressed);
   }, []);
 
-  const handleDrawerToggle = useCallback((pressed: boolean) => {
-    setDrawerOpen(pressed);
-  }, []);
+
 
   // Memoized sidebar items to prevent re-creation
   const sidebarItems = useCallback(() => [
@@ -208,15 +220,6 @@ export default function DashboardBase({ children }) {
             </Caption>
           </div>
           <Avatar variant="outline" src="/assets/avatar.png" suppressHydrationWarning />
-          <IconButton
-            variant="tertiary"
-            size="sm"
-            onClick={() => handleDrawerToggle(!isDrawerOpen)}
-            className="text-gray-600 hover:text-gray-800"
-            aria-label={isDrawerOpen ? "Close drawer" : "Open drawer"}
-          >
-            {isDrawerOpen ? <CaretRight /> : <CaretLeft />}
-          </IconButton>
         </div>
       </Header>
 
@@ -371,25 +374,43 @@ export default function DashboardBase({ children }) {
           )}
         >
           {/* Add your main content here */}
-          <PartnerProvider>
-            {children}
+         
+          {children}
+
+          {/* Fixed Red Submit Button - Top Right Corner */}
+          <div className="fixed top-[calc(var(--header-height)+16px)] right-1 z-[4] group">
+            <button
+              type="button"
+              disabled={isUploading || !activePartnerId || !activeConfig}
+              className={clsx(
+                "shadow-lg hover:shadow-xl rounded-[8px] w-[30px] h-[30px] flex items-center justify-center transition-all duration-200 border-0",
+                isUploading || !activePartnerId || !activeConfig
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-red-500 hover:bg-red-600 cursor-pointer"
+              )}
+              aria-label={isUploading ? "Uploading..." : "Upload Excel File"}
+              title={
+                isUploading 
+                  ? "Uploading file..." 
+                  : !activePartnerId 
+                    ? "Please select a partner first" 
+                    : !activeConfig 
+                      ? "Please select a loader configuration" 
+                      : "Upload Excel file with selected configuration"
+              }
+              onClick={handleQuickSubmit}
+            >
+              {isUploading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+              ) : (
+                <UploadSimple size={20} className="text-white" />
+              )}
+            </button>
             
-            {/* Right Drawer - Only render when open */}
-            {isDrawerOpen && (
-              <aside
-                className={clsx(
-                  "fixed right-0 top-0 bottom-0 pt-[var(--header-height)] z-[2]",
-                  "bg-white border-l border-gray-200 shadow-lg",
-                  "transition-all duration-300 w-[300px]",
-                  "animate-in slide-in-from-right"
-                )}
-              >
-                <div className="h-full w-full overflow-y-auto">
-                  <CustomDrawer />
-                </div>
-              </aside>
-            )}
-          </PartnerProvider>
+            
+          
+          </div>
+
         </main>
       </div>
     </div>

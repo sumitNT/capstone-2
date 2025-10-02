@@ -22,7 +22,34 @@ export const API_URLS = {
         console.log(err);
         throw err;
     }
-  }
+  },
 
-  
+  uploadExcelFile: async (partnerId: string, loaderConfigId: string, file: File) => {
+    try {
+        // Create FormData for file upload
+        const formData = new FormData();
+        formData.append('partnerId', partnerId);
+        formData.append('loaderConfigId', loaderConfigId);
+        formData.append('file', file);
+
+        console.log('API: Uploading file with:', {
+          partnerId,
+          loaderConfigId,
+          fileName: file.name,
+          fileSize: file.size
+        });
+
+        // Post to the local API route first, which will handle the backend integration
+        const res = await axios.post('/api/upload-excel', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        return res.data;
+    } catch(err) {
+        console.log('API Upload Error:', err);
+        throw err;
+    }
+  }
 };

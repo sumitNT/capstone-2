@@ -1,18 +1,38 @@
 "use client";
 
-import { Button, Select, Upload, Text } from "@hdfclife-insurance/one-x-ui";
+import { Button, Select, Upload, Text, IconButton } from "@hdfclife-insurance/one-x-ui";
 import React from "react";
 import CustomTable from "./components/Table";
+import CustomDrawer from "./components/Drawer";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 
 // import data from "./components/table-data.json" 
 import { usePartnerContext } from "../../context/partners";
+import { useDrawerContext } from "../../context/drawerContext";
+import clsx from "clsx";
 
 
 export default function Dashboard() {
   const { partnerList, fetchPartners, partnerLoaderConfigList, fetchPartnerLoaderConfig, activeConfig } = usePartnerContext();
+  const { isDrawerOpen, handleDrawerToggle } = useDrawerContext();
+
+
   
   return (
-    <div className="flex flex-col gap-[24px]">
+    <div className="flex flex-col gap-[24px] relative">
+      {/* Drawer Toggle Button */}
+      <div className="flex justify-end  pr-2">
+        <IconButton
+          variant="tertiary"
+          size="sm"
+          onClick={() => handleDrawerToggle(!isDrawerOpen)}
+          className="text-gray-600 hover:text-gray-800"
+          aria-label={isDrawerOpen ? "Close drawer" : "Open drawer"}
+        >
+          {isDrawerOpen ? <CaretRight /> : <CaretLeft />}
+        </IconButton>
+      </div>
+      
       <div className="flex flex-col gap-[24px] border border-gray-300 rounded-[8px] p-4 bg-white">
         <form className="space-y-1">
           <div className="grid lg:grid-cols-4 gap-4 items-end">
@@ -61,6 +81,25 @@ export default function Dashboard() {
       )}
 
       <CustomTable />
+      
+      {/* Right Drawer - Only render when open */}
+      {isDrawerOpen && (
+        <aside
+          className={clsx(
+            "fixed right-10 top-0 bottom-0 pt-[var(--header-height)] z-[2]",
+            "bg-white border-l border-gray-200 shadow-lg",
+            "transition-all duration-300 w-[300px]",
+            "animate-in slide-in-from-right"
+          )}
+        >
+          <div className="h-full w-full overflow-y-auto p-4">
+            <CustomDrawer />
+          </div>
+        </aside>
+      )}
+
+
+
     </div>
   );
 }
