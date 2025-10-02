@@ -16,6 +16,7 @@ import {
   Copy,
   Eye,
   Handshake,
+  House,
   ShieldCheck,
   UserCircleGear,
   UserCirclePlus,
@@ -54,6 +55,13 @@ export default function DashboardBase({ children }) {
 
   // Memoized sidebar items to prevent re-creation
   const sidebarItems = useCallback(() => [
+    // Dashboard home
+    {
+      label: "Dashboard",
+      href: "#dashboard",
+      leftSection: <House />,
+      active: false,
+    },
     // New business dropdown section
     {
       title: "New business",
@@ -62,15 +70,15 @@ export default function DashboardBase({ children }) {
       links: [
         {
           label: "Register partner",
-          href: "/dashboard/new-business/register-partner",
+          href: "#register-partner",
           leftSection: <UserCirclePlus />,
-          active: isHydrated ? pathname === "/dashboard/new-business/register-partner" : false,
+          active: false,
         },
         {
-          label: "View Partner",
-          href: "/dashboard/new-business/view-partner",
+          label: "View Partner", 
+          href: "#view-partner",
           leftSection: <Eye />,
-          active: isHydrated ? pathname?.includes("/dashboard/new-business/view-partner") : false,
+          active: false,
         },
       ]
     },
