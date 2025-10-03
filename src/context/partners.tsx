@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { API_URLS } from "../app/api/api";
 import axios from "axios";
 
@@ -10,14 +10,13 @@ interface Partner {
   name: string;
 }
 
-// partnerLoaderConfig interface
+// partnerLoaderConfig interface - Updated to match API response
 interface PartnerLoaderConfig {
-    date: Date;
-    loaderId: string;
-    templateName: string;
+    id: number;
+    configId: string;
+    configName: string;
+    localDateTime: string;
     loaderType: string;
-    uploadedBy: string;
-    action: File;
 }
 
 // Context type definition
@@ -36,6 +35,11 @@ interface PartnerContextType {
   setActiveConfig: React.Dispatch<React.SetStateAction<PartnerLoaderConfig | null>>;
   isUploading: boolean;
   uploadError: string | null;
+  // Separate file states for both loaders
+  firstRawLoaderFile: File | null;
+  setFirstRawLoaderFile: React.Dispatch<React.SetStateAction<File | null>>;
+  rawLoaderFile: File | null;
+  setRawLoaderFile: React.Dispatch<React.SetStateAction<File | null>>;
   handleQuickSubmit: () => void;
 }
 
@@ -59,6 +63,9 @@ export const PartnerProvider: React.FC<PartnerProviderProps> = ({
   const [activeConfig, setActiveConfig] = useState<PartnerLoaderConfig | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  // Separate file states for both loaders
+  const [firstRawLoaderFile, setFirstRawLoaderFile] = useState<File | null>(null);
+  const [rawLoaderFile, setRawLoaderFile] = useState<File | null>(null);
 
   const fetchPartners = async () => {
     setLoading(true);
@@ -75,12 +82,19 @@ export const PartnerProvider: React.FC<PartnerProviderProps> = ({
     }
   };
 
+  // Load partners on component mount
+  useEffect(() => {
+    fetchPartners();
+  }, []);
+
   const fetchPartnerLoaderConfig = async (partner: Partner) => {
+    console.log("HII")
     setLoading(true);
     setError(null);
     setActivePartnerId(partner.id); // Store the active partner ID
     try {
       const config = await API_URLS.getPartnerLoaderConfigList(partner.id);
+      console.log(config)
       setPartnerLoaderConfigList(config);
       console.log("Fetching partner loader config for:", partner);
     } catch (error) {
@@ -92,48 +106,57 @@ export const PartnerProvider: React.FC<PartnerProviderProps> = ({
     }
   };
 
-  const handleQuickSubmit = () => {
-    // Validate that partner and loader config are selected
+  const handleQuickSubmit = async () => {
+    // Determine which file to use and validation requirements
+    const currentFile = firstRawLoaderFile || rawLoaderFile;
+    const isFirstRawLoader = !!firstRawLoaderFile;
+    
+    // Validate partner selection
     if (!activePartnerId) {
       alert('Please select a partner first from the dropdown menu.');
       return;
     }
 
-    if (!activeConfig) {
+    // For rawLoader, also check activeConfig; for firstRawLoader, config is optional
+    if (!isFirstRawLoader && !activeConfig) {
       alert('Please select a loader configuration from the table first.');
       return;
     }
 
-    // Create a hidden file input for Excel files
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = '.xlsx,.xls,.csv';
-    fileInput.multiple = false;
-    
-    fileInput.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
+    // Check if file is uploaded
+    if (!currentFile) {
+      alert('Please upload a file using either firstRawLoader or RawLoader.');
+      return;
+    }
 
-      setIsUploading(true);
-      setUploadError(null);
+    setIsUploading(true);
+    setUploadError(null);
 
-      try {
-        const result = await API_URLS.uploadExcelFile(activePartnerId, activeConfig.loaderId, file);
-        
-        console.log('Upload successful:', result);
-        alert(`File "${file.name}" uploaded successfully!\nPartner ID: ${activePartnerId}\nLoader Config: ${activeConfig.templateName}`);
-        
-      } catch (error: any) {
-        console.error('Error uploading file:', error);
-        const errorMessage = error.response?.data?.error || error.message || 'Upload failed';
-        setUploadError(errorMessage);
-        alert(`Error uploading file: ${errorMessage}\nPlease try again.`);
-      } finally {
-        setIsUploading(false);
+    try {
+      // Use activeConfig.configId if available, otherwise use activePartnerId
+      const configId = activeConfig?.configId || activePartnerId;
+      const result = await API_URLS.uploadExcelFile(activePartnerId, configId, currentFile);
+      
+      console.log('Upload successful:', result);
+      const loaderType = isFirstRawLoader ? 'firstRawLoader' : 'rawLoader';
+      const configInfo = activeConfig ? `\nLoader Config: ${activeConfig.configName}` : '';
+      alert(`File "${currentFile.name}" uploaded successfully!\nLoader Type: ${loaderType}\nPartner ID: ${activePartnerId}${configInfo}`);
+      
+      // Clear the uploaded file after successful submission
+      if (isFirstRawLoader) {
+        setFirstRawLoaderFile(null);
+      } else {
+        setRawLoaderFile(null);
       }
-    };
-    
-    fileInput.click();
+      
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      const errorMessage = error.response?.data?.error || error.message || 'Upload failed';
+      setUploadError(errorMessage);
+      alert(`Error uploading file: ${errorMessage}\nPlease try again.`);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const value: PartnerContextType = {
@@ -151,6 +174,10 @@ export const PartnerProvider: React.FC<PartnerProviderProps> = ({
     setActiveConfig,
     isUploading,
     uploadError,
+    firstRawLoaderFile,
+    setFirstRawLoaderFile,
+    rawLoaderFile,
+    setRawLoaderFile,
     handleQuickSubmit,
   };
 

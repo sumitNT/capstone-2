@@ -50,8 +50,9 @@ function DashboardLayout({ children }) {
   const [isHydrated, setIsHydrated] = useState(false);
   const pathname = usePathname();
   const { isDrawerOpen } = useDrawerContext();
-  const { activePartnerId, activeConfig, isUploading, handleQuickSubmit } = usePartnerContext();
+  const { activePartnerId, activeConfig, isUploading, firstRawLoaderFile, rawLoaderFile, handleQuickSubmit } = usePartnerContext();
 
+  
   // Fix hydration issues
   useEffect(() => {
     setIsHydrated(true);
@@ -381,23 +382,56 @@ function DashboardLayout({ children }) {
           <div className="fixed top-[calc(var(--header-height)+16px)] right-1 z-[4] group">
             <button
               type="button"
-              disabled={isUploading || !activePartnerId || !activeConfig}
+              disabled={(() => {
+                const hasFirstRawLoader = !!firstRawLoaderFile;
+                const hasRawLoader = !!rawLoaderFile;
+                const currentFile = firstRawLoaderFile || rawLoaderFile;
+                
+                if (!activePartnerId || !currentFile) return true;
+                
+                // firstRawLoader: only needs partner + file
+                if (hasFirstRawLoader) return false;
+                
+                // rawLoader: needs partner + config + file  
+                if (hasRawLoader) return !activeConfig;
+                
+                return true;
+              })()}
               className={clsx(
                 "shadow-lg hover:shadow-xl rounded-[8px] w-[30px] h-[30px] flex items-center justify-center transition-all duration-200 border-0",
-                isUploading || !activePartnerId || !activeConfig
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-red-500 hover:bg-red-600 cursor-pointer"
+                (() => {
+                  const hasFirstRawLoader = !!firstRawLoaderFile;
+                  const hasRawLoader = !!rawLoaderFile;
+                  const currentFile = firstRawLoaderFile || rawLoaderFile;
+                  
+                  if (!activePartnerId || !currentFile) return "bg-gray-400 cursor-not-allowed";
+                  if (hasFirstRawLoader) return "bg-red-500 hover:bg-red-600 cursor-pointer";
+                  if (hasRawLoader && activeConfig) return "bg-red-500 hover:bg-red-600 cursor-pointer";
+                  
+                  return "bg-gray-400 cursor-not-allowed";
+                })()
               )}
-              aria-label={isUploading ? "Uploading..." : "Upload Excel File"}
-              title={
-                isUploading 
-                  ? "Uploading file..." 
-                  : !activePartnerId 
-                    ? "Please select a partner first" 
-                    : !activeConfig 
-                      ? "Please select a loader configuration" 
-                      : "Upload Excel file with selected configuration"
-              }
+              aria-label={isUploading ? "Uploading..." : "Submit Upload"}
+              title={(() => {
+                const hasFirstRawLoader = !!firstRawLoaderFile;
+                const hasRawLoader = !!rawLoaderFile;
+                const currentFile = firstRawLoaderFile || rawLoaderFile;
+                
+                if (isUploading) return "Uploading...";
+                if (!activePartnerId) return "Please select a partner first";
+                if (!currentFile) return "Please upload a file using firstRawLoader or RawLoader";
+                
+                if (hasFirstRawLoader) {
+                  return `Submit ${currentFile.name} (firstRawLoader)`;
+                }
+                
+                if (hasRawLoader) {
+                  if (!activeConfig) return "Please select a loader configuration from the table";
+                  return `Submit ${currentFile.name} (rawLoader) with ${activeConfig.configName}`;
+                }
+                
+                return "Please upload a file";
+              })()}
               onClick={handleQuickSubmit}
             >
               {isUploading ? (

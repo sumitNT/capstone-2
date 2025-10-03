@@ -5,15 +5,27 @@ import React from "react";
 import CustomTable from "./components/Table";
 import CustomDrawer from "./components/Drawer";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
-
-// import data from "./components/table-data.json" 
 import { usePartnerContext } from "../../context/partners";
 import { useDrawerContext } from "../../context/drawerContext";
 import clsx from "clsx";
 
 
 export default function Dashboard() {
-  const { partnerList, fetchPartners, partnerLoaderConfigList, fetchPartnerLoaderConfig, activeConfig } = usePartnerContext();
+  const { 
+    partnerList, 
+    fetchPartners, 
+    partnerLoaderConfigList, 
+    fetchPartnerLoaderConfig, 
+    activeConfig, 
+    setActiveConfig,
+    setActivePartnerId,
+    setPartnerList,
+    setPartnerLoaderConfigList,
+    firstRawLoaderFile,
+    setFirstRawLoaderFile,
+    rawLoaderFile,
+    setRawLoaderFile
+  } = usePartnerContext();
   const { isDrawerOpen, handleDrawerToggle } = useDrawerContext();
 
 
@@ -38,13 +50,17 @@ export default function Dashboard() {
           <div className="grid lg:grid-cols-4 gap-4 items-end">
             <Select
               valuePlaceholder="Partner"
-              onClick={fetchPartners}
-              items={partnerList.map((p) => ({
-                value: p.id,
-                label: p.name,
-                onClick: () => fetchPartnerLoaderConfig(p),
-              }))}
-             
+              items={partnerList.map((p) => p.name)}
+              onClick={fetchPartners} // you can comment-out
+              onChange={(event) => {
+                const target = event.target as HTMLSelectElement;
+                const selectedValue = target.value;
+                const partner = partnerList.find(p => p.name === selectedValue);
+                if (partner) {
+                  console.log("Partner selected:", partner);
+                  fetchPartnerLoaderConfig(partner);
+                }
+              }}
               name="partner"
             />
             <Select
@@ -52,12 +68,54 @@ export default function Dashboard() {
               items={["All policies"]}
               name="policies"
             />
-            <Button data-color="secondary" variant="tertiary" type="reset">
+            <Button 
+              data-color="secondary" 
+              variant="tertiary" 
+              type="button"
+              onClick={() => {
+                // Reset everything to initial state
+                setFirstRawLoaderFile(null);
+                setRawLoaderFile(null);
+                setActiveConfig(null);
+                setActivePartnerId(null);
+                setPartnerList([]);
+                setPartnerLoaderConfigList([]);
+                handleDrawerToggle(false); // Close drawer on reset
+                console.log("Complete form reset - cleared both files, active config, partner ID, partner list, loader config list, and closed drawer");
+              }}
+            >
               Reset
             </Button>
           </div>
         </form>
-        <Upload size="lg" variant="extended" />
+        <div className="flex flex-col gap-2">
+          <Upload 
+            key={firstRawLoaderFile ? firstRawLoaderFile.name : 'firstrawloader-reset'}
+            size="lg" 
+            variant="extended" 
+            label="firstRawLoader"
+            disabled={!!rawLoaderFile}
+            // accept=".xlsx,.xls,.csv,.XLTS"
+            onFileChange={(details) => {
+              console.log("firstRawLoader upload event:", details);
+              if (details?.acceptedFiles && details.acceptedFiles.length > 0) {
+                // Clear rawLoader file when firstRawLoader is used (mutual exclusivity)
+                setRawLoaderFile(null);
+                setFirstRawLoaderFile(details.acceptedFiles[0]);
+                console.log("firstRawLoader file ready:", details.acceptedFiles[0]);
+              } else {
+                setFirstRawLoaderFile(null);
+                console.log("firstRawLoader file not uploaded");
+              }
+            }}
+          />
+          {firstRawLoaderFile && (
+            <div className="text-sm text-green-600 font-medium">
+              ✓ firstRawLoader ready: {firstRawLoaderFile.name}
+            </div>
+          )}
+          
+        </div>
       </div>
 
       {activeConfig && (
@@ -66,11 +124,11 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
             <div>
               <span className="font-medium text-blue-800">Loader ID:</span>
-              <span className="ml-2 text-blue-700">{activeConfig.loaderId}</span>
+              <span className="ml-2 text-blue-700">{activeConfig.configId}</span>
             </div>
             <div>
               <span className="font-medium text-blue-800">Template:</span>
-              <span className="ml-2 text-blue-700">{activeConfig.templateName}</span>
+              <span className="ml-2 text-blue-700">{activeConfig.configName}</span>
             </div>
             <div>
               <span className="font-medium text-blue-800">Type:</span>

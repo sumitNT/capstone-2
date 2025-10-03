@@ -4,11 +4,10 @@ import { createContext, useState, ReactNode, useContext } from "react";
 type SortState = "default" | "ascending" | "descending";
 
 interface SortConfig {
-  date: SortState;
-  loaderId: SortState;
-  templateName: SortState;
+  localDateTime: SortState;
+  configId: SortState;
+  configName: SortState;
   loaderType: SortState;
-  uploadedBy: SortState;
 }
 
 interface TableContextType {
@@ -26,11 +25,10 @@ export function TableProvider({ children }: TableProviderProps) {
   
 
   const [sortConfig, setSortConfig] = useState<SortConfig>({
-    date: "default",
-    loaderId: "default",
-    templateName: "default",
+    localDateTime: "default",
+    configId: "default",
+    configName: "default",
     loaderType: "default",
-    uploadedBy: "default",
   });
 
   const handleSortToggle = (column: keyof SortConfig) => {
@@ -48,11 +46,10 @@ export function TableProvider({ children }: TableProviderProps) {
 
       // Reset all other columns to default when one column changes
       return {
-        date: column === "date" ? newState : "default",
-        loaderId: column === "loaderId" ? newState : "default",
-        templateName: column === "templateName" ? newState : "default",
+        localDateTime: column === "localDateTime" ? newState : "default",
+        configId: column === "configId" ? newState : "default",
+        configName: column === "configName" ? newState : "default",
         loaderType: column === "loaderType" ? newState : "default",
-        uploadedBy: column === "uploadedBy" ? newState : "default",
       };
     });
   };
