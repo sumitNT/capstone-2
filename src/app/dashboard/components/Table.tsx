@@ -16,15 +16,15 @@ import { usePartnerContext } from "../../../context/partners";
 import { API_URLS } from "../../../app/api/api";
 
 export default function CustomTable() {
-  const {sortConfig, handleSortToggle} = useTableContext();
+  const {sortConfig, handleSortToggle, sortData} = useTableContext();
   const { partnerLoaderConfigList, setActiveConfig, activeConfig, activePartnerId } = usePartnerContext();
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
-  // Use only real data from context
-  const allTableData = partnerLoaderConfigList;
+  // Use sorted data from context
+  const allTableData = sortData(partnerLoaderConfigList);
   
   // Calculate pagination
   const totalItems = allTableData.length;

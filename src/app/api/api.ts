@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:8765/partnerservice/api";
+export const API_BASE_URL = `${process.env.API_BASE_URL || "http://localhost:8765"}/partnerservice/api`;
 
 export const API_URLS = {
   getPartnerList: async () => {

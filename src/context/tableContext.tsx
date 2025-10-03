@@ -13,6 +13,8 @@ interface SortConfig {
 interface TableContextType {
   sortConfig: SortConfig;
   handleSortToggle: (column: keyof SortConfig) => void;
+  sortData: <T extends Record<string, any>>(data: T[]) => T[];
+  resetSorting: () => void;
 }
 
 const TableContext = createContext<TableContextType | undefined>(undefined);
@@ -54,7 +56,56 @@ export function TableProvider({ children }: TableProviderProps) {
     });
   };
 
-  const value = {sortConfig, handleSortToggle};
+  const sortData = <T extends Record<string, any>>(data: T[]): T[] => {
+    // Find which column is being sorted
+    const sortColumn = Object.keys(sortConfig).find(
+      (key) => sortConfig[key as keyof SortConfig] !== "default"
+    ) as keyof SortConfig | undefined;
+
+    if (!sortColumn || sortConfig[sortColumn] === "default") {
+      return [...data]; // Return original order if no sorting
+    }
+
+    const sortedData = [...data].sort((a, b) => {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
+
+      // Handle different data types
+      let comparison = 0;
+
+      if (sortColumn === "localDateTime") {
+        // Sort dates
+        const dateA = new Date(aValue).getTime();
+        const dateB = new Date(bValue).getTime();
+        comparison = dateA - dateB;
+      } else if (typeof aValue === "string" && typeof bValue === "string") {
+        // Sort strings alphabetically
+        comparison = aValue.toLowerCase().localeCompare(bValue.toLowerCase());
+      } else if (typeof aValue === "number" && typeof bValue === "number") {
+        // Sort numbers
+        comparison = aValue - bValue;
+      } else {
+        // Fallback to string comparison
+        comparison = String(aValue).toLowerCase().localeCompare(String(bValue).toLowerCase());
+      }
+
+      // Apply ascending or descending order
+      return sortConfig[sortColumn] === "ascending" ? comparison : -comparison;
+    });
+
+    return sortedData;
+  };
+
+  const resetSorting = () => {
+    setSortConfig({
+      localDateTime: "default",
+      configId: "default",
+      configName: "default",
+      loaderType: "default",
+    });
+  };
+
+  const value = {sortConfig, handleSortToggle, sortData, resetSorting};
 
   return (
     <TableContext.Provider value={value}>{children}</TableContext.Provider>

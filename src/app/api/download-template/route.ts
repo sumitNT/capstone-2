@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:8765/partnerservice/api";
-
 export async function GET(request: NextRequest) {
   try {
     // Get query parameters from the URL
@@ -18,8 +16,9 @@ export async function GET(request: NextRequest) {
 
     console.log('API Route: Downloading template for configId:', configId, 'partnerId:', partnerId);
     
-    // Build the backend URL for downloading the template
-    const backendUrl = `${API_BASE_URL}/partners/download-template?configId=${configId}&partnerId=${partnerId}`;
+    // Build the backend URL for downloading the template using the new API structure
+    const baseUrl = process.env.API_BASE_URL || "http://localhost:8765";
+    const backendUrl = `${baseUrl}/config-generation-service/config-service/api/partners/${partnerId}/configs/${configId}/download`;
     console.log('Backend URL:', backendUrl);
     
     const response = await fetch(backendUrl, {

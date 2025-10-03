@@ -7,6 +7,7 @@ import CustomDrawer from "./components/Drawer";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import { usePartnerContext } from "../../context/partners";
 import { useDrawerContext } from "../../context/drawerContext";
+import { useTableContext } from "../../context/tableContext";
 import clsx from "clsx";
 
 
@@ -27,6 +28,7 @@ export default function Dashboard() {
     setRawLoaderFile
   } = usePartnerContext();
   const { isDrawerOpen, handleDrawerToggle } = useDrawerContext();
+  const { resetSorting } = useTableContext();
 
 
   
@@ -80,8 +82,9 @@ export default function Dashboard() {
                 setActivePartnerId(null);
                 setPartnerList([]);
                 setPartnerLoaderConfigList([]);
+                resetSorting(); // Reset table sorting
                 handleDrawerToggle(false); // Close drawer on reset
-                console.log("Complete form reset - cleared both files, active config, partner ID, partner list, loader config list, and closed drawer");
+                console.log("Complete form reset - cleared both files, active config, partner ID, partner list, loader config list, table sorting, and closed drawer");
               }}
             >
               Reset
