@@ -98,5 +98,16 @@ export const API_URLS = {
         console.log('API Download Error:', err);
         throw err;
     }
+  },
+
+  getDetailedPartnerList: async () => {
+    try {
+        const res = await axios.get('/api/partners-detailed')
+        console.log('Detailed Partners API response:', res);
+        return res.data;
+    } catch(err) {
+        console.log('Detailed Partners API error:', err);
+        throw err;
+    }
   }
 };
