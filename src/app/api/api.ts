@@ -1,6 +1,8 @@
 import axios from "axios";
 
 export const API_BASE_URL = `${process.env.API_BASE_URL || "http://localhost:8765"}/partnerservice/api`;
+export const RAW_LOADER_API_BASE_URL = `${process.env.API_BASE_URL || "http://localhost:8765"}/rawloaderservice/api`;
+export const CONFIG_GENERATION_API_BASE_URL = `${process.env.API_BASE_URL || "http://localhost:8765"}/config-generation-service/config-service/api`;
 
 export const API_URLS = {
   getPartnerList: async () => {
@@ -49,6 +51,31 @@ export const API_URLS = {
         return res.data;
     } catch(err) {
         console.log('API Upload Error:', err);
+        throw err;
+    }
+  },
+
+  uploadFirstRawLoaderFile: async (partnerId: string, file: File) => {
+    try {
+        const formData = new FormData();
+        formData.append('partnerId', partnerId);
+        formData.append('file', file);
+
+        console.log('API: Uploading firstRawLoader file with:', {
+          partnerId,
+          fileName: file.name,
+          fileSize: file.size
+        });
+
+        const res = await axios.post('/api/upload-first-raw-loader', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        return res.data;
+    } catch(err) {
+        console.log('API FirstRawLoader Upload Error:', err);
         throw err;
     }
   },

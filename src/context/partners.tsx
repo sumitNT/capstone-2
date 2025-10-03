@@ -133,25 +133,83 @@ export const PartnerProvider: React.FC<PartnerProviderProps> = ({
     setUploadError(null);
 
     try {
-      // Use activeConfig.configId if available, otherwise use activePartnerId
-      const configId = activeConfig?.configId || activePartnerId;
-      const result = await API_URLS.uploadExcelFile(activePartnerId, configId, currentFile);
+      let result;
       
-      console.log('Upload successful:', result);
-      const loaderType = isFirstRawLoader ? 'firstRawLoader' : 'rawLoader';
-      const configInfo = activeConfig ? `\nLoader Config: ${activeConfig.configName}` : '';
-      alert(`File "${currentFile.name}" uploaded successfully!\nLoader Type: ${loaderType}\nPartner ID: ${activePartnerId}${configInfo}`);
-      
-      // Clear the uploaded file after successful submission
       if (isFirstRawLoader) {
-        setFirstRawLoaderFile(null);
+        // Use uploadFirstRawLoaderFile for firstRawLoader uploads
+        result = await API_URLS.uploadFirstRawLoaderFile(activePartnerId, currentFile);
       } else {
-        setRawLoaderFile(null);
+        // Use uploadExcelFile for rawLoader uploads (requires config)
+        const configId = activeConfig?.configId || activePartnerId;
+        result = await API_URLS.uploadExcelFile(activePartnerId, configId, currentFile);
+      }
+      
+      console.log('Upload result:', result);
+      
+      // Handle the response based on success/failure from backend
+      if (result.success) {
+        // Success response - show detailed results
+        const loaderType = isFirstRawLoader ? 'firstRawLoader' : 'rawLoader';
+        const configInfo = activeConfig ? `\nLoader Config: ${activeConfig.configName}` : '';
+        
+        let message = `File "${currentFile.name}" processed!\nLoader Type: ${loaderType}\nPartner ID: ${activePartnerId}${configInfo}\n\n`;
+        message += `Result: ${result.message}\n`;
+        
+        if (result.successCount !== undefined) {
+          message += `Successful Records: ${result.successCount}\n`;
+        }
+        if (result.errorCount !== undefined) {
+          message += `Failed Records: ${result.errorCount}`;
+        }
+        
+        alert(message);
+        
+        // Clear the uploaded file after processing
+        if (isFirstRawLoader) {
+          setFirstRawLoaderFile(null);
+        } else {
+          setRawLoaderFile(null);
+        }
+      } else {
+        // Error response from backend
+        let errorMessage = `Upload failed: ${result.message || 'Unknown error'}\n`;
+        
+        if (result.errorFilePath) {
+          errorMessage += `Error file: ${result.errorFilePath}\n`;
+        }
+        if (result.errorCount !== undefined) {
+          errorMessage += `Failed Records: ${result.errorCount}\n`;
+        }
+        if (result.successCount !== undefined) {
+          errorMessage += `Successful Records: ${result.successCount}`;
+        }
+        
+        setUploadError(result.message || 'Upload failed');
+        alert(errorMessage);
       }
       
     } catch (error: any) {
       console.error('Error uploading file:', error);
-      const errorMessage = error.response?.data?.error || error.message || 'Upload failed';
+      
+      // Handle different types of errors
+      let errorMessage = 'Upload failed';
+      
+      if (error.response?.data) {
+        // Backend returned an error response
+        const backendError = error.response.data;
+        errorMessage = backendError.message || backendError.error || 'Backend error';
+        
+        if (backendError.errorFilePath) {
+          errorMessage += `\nError file: ${backendError.errorFilePath}`;
+        }
+        if (backendError.errorCount !== undefined) {
+          errorMessage += `\nFailed Records: ${backendError.errorCount}`;
+        }
+      } else if (error.message) {
+        // Network or other error
+        errorMessage = error.message;
+      }
+      
       setUploadError(errorMessage);
       alert(`Error uploading file: ${errorMessage}\nPlease try again.`);
     } finally {

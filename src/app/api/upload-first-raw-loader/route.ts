@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const RAW_LOADER_API_BASE_URL = `${process.env.API_BASE_URL || "http://localhost:8765"}/rawloaderservice/api`;
+const CONFIG_GENERATION_API_BASE_URL = `${process.env.API_BASE_URL || "http://localhost:8765"}/config-generation-service/config-service/api`;
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     
     const partnerId = formData.get('partnerId') as string;
-    const loaderConfigId = formData.get('loaderConfigId') as string;
     const file = formData.get('file') as File;
 
     // Validate required fields
-    if (!partnerId || !loaderConfigId || !file) {
+    if (!partnerId || !file) {
       return NextResponse.json(
-        { error: 'Missing required fields: partnerId, loaderConfigId, or file' },
+        { error: 'Missing required fields: partnerId or file' },
         { status: 400 }
       );
     }
@@ -41,9 +40,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('File upload request:', {
+    console.log('FirstRawLoader file upload request:', {
       partnerId,
-      loaderConfigId,
       fileName: file.name,
       fileSize: file.size,
       fileType: file.type
@@ -59,18 +57,17 @@ export async function POST(request: NextRequest) {
       // Create FormData to send to backend
       const backendFormData = new FormData();
       backendFormData.append('partnerId', partnerId);
-      backendFormData.append('loaderConfigId', loaderConfigId);
       backendFormData.append('file', new Blob([buffer]), file.name);
 
-      // Send to actual backend using the rawLoader API structure
-      const backendResponse = await fetch(`${RAW_LOADER_API_BASE_URL}/partners/${partnerId}/configs/${loaderConfigId}/loader-data/upload`, {
+      // Send to actual backend for firstRawLoader using config-generation-service
+      const backendResponse = await fetch(`${CONFIG_GENERATION_API_BASE_URL}/partners/${partnerId}/loader-transformation-configs/upload`, {
         method: 'POST',
         body: backendFormData,
       });
       
       if (backendResponse.ok) {
         const backendData = await backendResponse.json();
-        // Return the actual backend response with all the details
+        // Return the actual backend response
         uploadResult = backendData;
       } else {
         // Handle backend error responses
@@ -80,14 +77,14 @@ export async function POST(request: NextRequest) {
         } catch (parseError) {
           uploadResult = {
             success: false,
-            message: `Upload failed with status ${backendResponse.status}`,
+            message: `FirstRawLoader upload failed with status ${backendResponse.status}`,
             errorCount: 0,
             successCount: 0
           };
         }
       }
     } catch (backendError) {
-      console.error('Backend upload error:', backendError);
+      console.error('Backend firstRawLoader upload error:', backendError);
       // Return error response if backend is not available
       uploadResult = {
         success: false,
@@ -101,9 +98,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(uploadResult, { status: 200 });
 
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error('FirstRawLoader upload error:', error);
     return NextResponse.json(
-      { error: 'Internal server error during file upload' },
+      { error: 'Internal server error during firstRawLoader file upload' },
       { status: 500 }
     );
   }
