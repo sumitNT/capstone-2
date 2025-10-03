@@ -6,6 +6,7 @@ import {
 } from "@hdfclife-insurance/one-x-ui";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { API_URLS } from "../../../../../api/api";
 
 interface PartnerFormData {
   partnerName: string;
@@ -102,14 +103,7 @@ export default function EditPartner({ params }: EditPartnerProps) {
   const validateForm = (): boolean => {
     const newErrors: Partial<PartnerFormData> = {};
 
-    if (!formData.partnerName.trim()) {
-      newErrors.partnerName = "Partner name is required";
-    }
-
-    if (!formData.type) {
-      newErrors.type = "Partner type is required";
-    }
-
+    // Only validate editable fields: email, mobile, contactNumber
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -128,16 +122,6 @@ export default function EditPartner({ params }: EditPartnerProps) {
       newErrors.contactNumber = "Please enter a valid contact number";
     }
 
-    if (!formData.address.trim()) {
-      newErrors.address = "Address is required";
-    }
-
-    if (!formData.dateOfAgreement) {
-      newErrors.dateOfAgreement = "Date of agreement is required";
-    } else if (new Date(formData.dateOfAgreement) > new Date()) {
-      newErrors.dateOfAgreement = "Date of agreement cannot be in the future";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -147,37 +131,21 @@ export default function EditPartner({ params }: EditPartnerProps) {
     
     if (validateForm()) {
       try {
-        // Send raw form data to backend API (backend handles hashing)
-        const payload = {
-          partnerName: formData.partnerName,
-          type: formData.type.toUpperCase(),
+        // Only send editable fields: email, mobile, contactNumber
+        const updateData = {
           email: formData.email,
           mobile: formData.mobile,
           contactNumber: formData.contactNumber,
-          dateOfAgreement: formData.dateOfAgreement,
-          address: formData.address
-          // Note: PAN and GST are not included as they should not be editable after registration
         };
 
-        // Send data to backend API using PATCH
-        const response = await fetch(`http://localhost:8080/api/partner/${id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (response.ok) {
-          alert("Partner updated successfully!");
-          router.push("/dashboard/new-business/view-partner");
-        } else {
-          const errorData = await response.json();
-          alert(`Error: ${errorData.message || 'Failed to update partner'}`);
-        }
+        await API_URLS.updatePartner(id, updateData);
+        
+        alert("Partner updated successfully!");
+        router.push("/dashboard/new-business/view-partner");
+        
       } catch (error) {
         console.error('Error updating partner:', error);
-        alert('Failed to update partner. Please try again.');
+        alert(`Failed to update partner: ${error instanceof Error ? error.message : 'Please try again.'}`);
       }
     }
   };
@@ -212,48 +180,38 @@ export default function EditPartner({ params }: EditPartnerProps) {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Partner Name */}
+        {/* Partner Name - Not Editable */}
         <div>
           <label className={labelClassName}>
-            Partner Name
+            Partner Name (Not Editable)
           </label>
           <input
             type="text"
             value={formData.partnerName}
-            onChange={(e) => handleInputChange("partnerName", e.target.value)}
-            placeholder="Enter partner name"
-            className={inputClassName}
+            className={`${inputClassName} bg-gray-100 cursor-not-allowed`}
+            disabled
+            readOnly
           />
-          {errors.partnerName && (
-            <Text size="sm" className="text-red-600 mt-2">
-              {errors.partnerName}
-            </Text>
-          )}
+          <p className="text-xs text-gray-500 mt-1 font-poppins">
+            Partner name cannot be modified after registration
+          </p>
         </div>
 
-        {/* Partner Type */}
+        {/* Partner Type - Not Editable */}
         <div>
           <label className={labelClassName}>
-            Partner Type
+            Partner Type (Not Editable)
           </label>
-          <select
+          <input
+            type="text"
             value={formData.type}
-            onChange={(e) => handleInputChange("type", e.target.value)}
-            className={selectClassName}
-          >
-            <option value="">Select partner type</option>
-            <option value="INDIVIDUAL">Individual</option>
-            <option value="CORPORATE">Corporate</option>
-            <option value="PARTNERSHIP">Partnership</option>
-            <option value="LLP">LLP</option>
-            <option value="TRUST">Trust</option>
-            <option value="SOCIETY">Society</option>
-          </select>
-          {errors.type && (
-            <Text size="sm" className="text-red-600 mt-2">
-              {errors.type}
-            </Text>
-          )}
+            className={`${inputClassName} bg-gray-100 cursor-not-allowed`}
+            disabled
+            readOnly
+          />
+          <p className="text-xs text-gray-500 mt-1 font-poppins">
+            Partner type cannot be modified after registration
+          </p>
         </div>
 
         {/* Mobile Number */}
@@ -349,44 +307,37 @@ export default function EditPartner({ params }: EditPartnerProps) {
           </p>
         </div>
 
-        {/* Address */}
+        {/* Address - Not Editable */}
         <div>
           <label className={labelClassName}>
-            Address
+            Address (Not Editable)
           </label>
           <textarea
             value={formData.address}
-            onChange={(e) => handleInputChange("address", e.target.value)}
-            placeholder="Enter address"
-            className={`${inputClassName} min-h-[120px] resize-vertical`}
+            className={`${inputClassName} min-h-[120px] resize-vertical bg-gray-100 cursor-not-allowed`}
             rows={5}
+            disabled
+            readOnly
           />
-          {errors.address && (
-            <Text size="sm" className="text-red-600 mt-2">
-              {errors.address}
-            </Text>
-          )}
+          <p className="text-xs text-gray-500 mt-1 font-poppins">
+            Address cannot be modified after registration
+          </p>
         </div>
 
-        {/* Date of Agreement */}
+        {/* Date of Agreement - Not Editable */}
         <div>
           <label className={labelClassName}>
-            Date of Agreement
+            Date of Agreement (Not Editable)
           </label>
           <input
             type="date"
             value={formData.dateOfAgreement}
-            onChange={(e) => handleInputChange("dateOfAgreement", e.target.value)}
-            className={inputClassName}
-            max={new Date().toISOString().split('T')[0]}
+            className={`${inputClassName} bg-gray-100 cursor-not-allowed`}
+            disabled
+            readOnly
           />
-          {errors.dateOfAgreement && (
-            <Text size="sm" className="text-red-600 mt-2">
-              {errors.dateOfAgreement}
-            </Text>
-          )}
           <p className="text-xs text-gray-500 mt-1 font-poppins">
-            Date cannot be in the future
+            Date of agreement cannot be modified after registration
           </p>
         </div>
 

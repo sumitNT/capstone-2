@@ -5,6 +5,7 @@ import {
   Text
 } from "@hdfclife-insurance/one-x-ui";
 import { useState } from "react";
+import { API_URLS } from "../../../api/api";
 
 // Hashing function for sensitive data
 const hashData = async (data: string): Promise<string> => {
@@ -23,7 +24,7 @@ interface PartnerFormData {
   contactNumber: string;
   pan: string;
   gst: string;
-  dateOfAgreement: string;
+  dateOfAgreement: string; // LocalDate format (YYYY-MM-DD)
   address: string;
 }
 
@@ -117,50 +118,26 @@ export default function RegisterPartner() {
     
     if (validateForm()) {
       try {
-        // Send raw form data to backend API (backend handles hashing)
-        const payload = {
-          partnerName: formData.partnerName,
-          type: formData.type.toUpperCase(),
-          email: formData.email,
-          mobile: formData.mobile,
-          contactNumber: formData.contactNumber,
-          pan: formData.pan,
-          gst: formData.gst,
-          dateOfAgreement: formData.dateOfAgreement,
-          address: formData.address
-        };
-
-        // Send data to backend API
-        const response = await fetch('http://localhost:8080/api/partners', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
+        await API_URLS.registerPartner(formData);
+        
+        // Reset form after successful submission
+        setFormData({
+          partnerName: "",
+          type: "",
+          email: "",
+          mobile: "",
+          contactNumber: "",
+          pan: "",
+          gst: "",
+          dateOfAgreement: "",
+          address: "",
         });
-
-        if (response.ok) {
-          // Reset form after successful submission
-          setFormData({
-            partnerName: "",
-            type: "",
-            email: "",
-            mobile: "",
-            contactNumber: "",
-            pan: "",
-            gst: "",
-            dateOfAgreement: "",
-            address: "",
-          });
-          
-          alert("Partner registered successfully!");
-        } else {
-          const errorData = await response.json();
-          alert(`Error: ${errorData.message || 'Failed to register partner'}`);
-        }
+        
+        alert("Partner registered successfully!");
+        
       } catch (error) {
         console.error('Error registering partner:', error);
-        alert('Failed to register partner. Please try again.');
+        alert(`Failed to register partner: ${error instanceof Error ? error.message : 'Please try again.'}`);
       }
     }
   };

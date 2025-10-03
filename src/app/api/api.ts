@@ -102,11 +102,51 @@ export const API_URLS = {
 
   getDetailedPartnerList: async () => {
     try {
-        const res = await axios.get('/api/partners-detailed')
+        const res = await axios.get('/api/partners-detailed');
         console.log('Detailed Partners API response:', res);
         return res.data;
     } catch(err) {
         console.log('Detailed Partners API error:', err);
+        throw err;
+    }
+  },
+
+  registerPartner: async (partnerData: {
+    partnerName: string;
+    type: string;
+    email: string;
+    mobile: string;
+    contactNumber: string;
+    pan: string;
+    gst: string;
+    dateOfAgreement: string;
+    address: string;
+  }) => {
+    try {
+        console.log('API: Registering partner with data:', partnerData);
+        
+        const res = await axios.post('/api/register-partner', partnerData);
+        console.log('Partner registration API response:', res);
+        return res.data;
+    } catch(err) {
+        console.log('Partner registration API error:', err);
+        throw err;
+    }
+  },
+
+  updatePartner: async (partnerId: string, partnerData: {
+    email: string;
+    mobile: string;
+    contactNumber: string;
+  }) => {
+    try {
+        console.log('API: Updating partner with data:', { partnerId, partnerData });
+        
+        const res = await axios.patch(`/api/update-partner/${partnerId}`, partnerData);
+        console.log('Partner update API response:', res);
+        return res.data;
+    } catch(err) {
+        console.log('Partner update API error:', err);
         throw err;
     }
   }
