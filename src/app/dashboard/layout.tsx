@@ -243,7 +243,7 @@ function DashboardLayout({ children }) {
               // Single sidebar links
               {
                 label: "New business",
-                href: "#",
+                href: "/dashboard",
                 leftSection: <Users />,
                 active: true,
               },
