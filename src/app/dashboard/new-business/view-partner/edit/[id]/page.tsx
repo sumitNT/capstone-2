@@ -7,15 +7,6 @@ import {
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-// Hashing function for sensitive data
-const hashData = async (data: string): Promise<string> => {
-  const encoder = new TextEncoder();
-  const dataBuffer = encoder.encode(data);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-};
-
 interface PartnerFormData {
   partnerName: string;
   type: string;
@@ -57,39 +48,34 @@ export default function EditPartner({ params }: EditPartnerProps) {
   useEffect(() => {
     const fetchPartnerData = async () => {
       try {
-        // In real implementation, fetch from your API: GET http://localhost:8080/api/partner/{id}
-        // For now, using mock data
-        const mockPartnerData = {
-          "1": {
-            partnerName: "John Smith",
-            type: "INDIVIDUAL",
-            email: "john.smith@example.com",
-            mobile: "9876543210",
-            contactNumber: "0221234567",
-            pan: "ABCDE1234F",
-            gst: "22AAAAA0000A1Z5",
-            address: "123 Main Street, City, State 12345",
-            dateOfAgreement: "2024-04-10",
-          },
-          "2": {
-            partnerName: "Acme Corporation",
-            type: "CORPORATE",
-            email: "contact@acme.example.com",
-            mobile: "9986776655",
-            contactNumber: "0224567890",
-            pan: "FGHIJ5678K",
-            gst: "27AAAAA0000A1Z6",
-            address: "456 Corporate Blvd, Business City, State 67890",
-            dateOfAgreement: "2024-04-08",
-          },
-        };
-
-        const partnerData = mockPartnerData[id as keyof typeof mockPartnerData];
-        if (partnerData) {
-          setFormData(partnerData);
+        // Fetch detailed partners and find the specific partner by id
+        const response = await fetch('/api/partners-detailed');
+        if (response.ok) {
+          const partners = await response.json();
+          const partner = partners.find((p: any) => p.id.toString() === id);
+          
+          if (partner) {
+            setFormData({
+              partnerName: partner.partnerName,
+              type: partner.type,
+              email: partner.email,
+              mobile: partner.mobile,
+              contactNumber: partner.contactNumber,
+              pan: partner.pan,
+              gst: partner.gst,
+              dateOfAgreement: partner.dateOfAgreement,
+              address: partner.address,
+            });
+          } else {
+            console.error('Partner not found');
+            alert('Partner not found');
+          }
+        } else {
+          throw new Error('Failed to fetch partner data');
         }
       } catch (error) {
         console.error('Error fetching partner data:', error);
+        alert('Failed to load partner data. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -161,15 +147,15 @@ export default function EditPartner({ params }: EditPartnerProps) {
     
     if (validateForm()) {
       try {
-        // Hash sensitive personal data for update
-        const hashedPayload = {
-          partnerName: await hashData(formData.partnerName),
+        // Send raw form data to backend API (backend handles hashing)
+        const payload = {
+          partnerName: formData.partnerName,
           type: formData.type.toUpperCase(),
-          email: await hashData(formData.email),
-          mobile: await hashData(formData.mobile),
-          contactNumber: await hashData(formData.contactNumber),
+          email: formData.email,
+          mobile: formData.mobile,
+          contactNumber: formData.contactNumber,
           dateOfAgreement: formData.dateOfAgreement,
-          address: await hashData(formData.address)
+          address: formData.address
           // Note: PAN and GST are not included as they should not be editable after registration
         };
 
@@ -179,7 +165,7 @@ export default function EditPartner({ params }: EditPartnerProps) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(hashedPayload),
+          body: JSON.stringify(payload),
         });
 
         if (response.ok) {

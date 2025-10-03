@@ -117,26 +117,26 @@ export default function RegisterPartner() {
     
     if (validateForm()) {
       try {
-        // Hash sensitive personal data
-        const hashedPayload = {
-          partnerName: await hashData(formData.partnerName),
+        // Send raw form data to backend API (backend handles hashing)
+        const payload = {
+          partnerName: formData.partnerName,
           type: formData.type.toUpperCase(),
-          email: await hashData(formData.email),
-          mobile: await hashData(formData.mobile),
-          contactNumber: await hashData(formData.contactNumber),
-          pan: await hashData(formData.pan),
-          gst: await hashData(formData.gst),
+          email: formData.email,
+          mobile: formData.mobile,
+          contactNumber: formData.contactNumber,
+          pan: formData.pan,
+          gst: formData.gst,
           dateOfAgreement: formData.dateOfAgreement,
-          address: await hashData(formData.address)
+          address: formData.address
         };
 
         // Send data to backend API
-        const response = await fetch('http://localhost:8080/api/partner', {
+        const response = await fetch('http://localhost:8080/api/partners', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(hashedPayload),
+          body: JSON.stringify(payload),
         });
 
         if (response.ok) {

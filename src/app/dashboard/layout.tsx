@@ -18,6 +18,7 @@ import {
   Handshake,
   ShieldCheck,
   UploadSimple,
+  User,
   UserCircleGear,
   UserCirclePlus,
   Users,
@@ -52,7 +53,7 @@ function DashboardLayout({ children }) {
   const { isDrawerOpen } = useDrawerContext();
   const { activePartnerId, activeConfig, isUploading, firstRawLoaderFile, rawLoaderFile, handleQuickSubmit } = usePartnerContext();
 
-  
+
   // Fix hydration issues
   useEffect(() => {
     setIsHydrated(true);
@@ -144,7 +145,7 @@ function DashboardLayout({ children }) {
         {
           label: "FR docs (Claims)",
           href: "#/reports/claims",
-          leftSection: <WifiNone/>,
+          leftSection: <WifiNone />,
         },
         {
           label: "COIs",
@@ -154,7 +155,7 @@ function DashboardLayout({ children }) {
         {
           label: "Pre issuance cancellation",
           href: "#/reports/claims",
-          leftSection: <WifiNone/>,
+          leftSection: <WifiNone />,
         },
       ]
     },
@@ -213,7 +214,7 @@ function DashboardLayout({ children }) {
         <div className="flex items-center justify-end gap-3 w-full">
           <div className="text-right hidden lg:block">
             <Text size="sm" fontWeight="bold">
-              Sujoy Guru
+              Test User
             </Text>
             <Text size="sm">Key Account Manager</Text>
             <Caption className="italic">
@@ -255,8 +256,8 @@ function DashboardLayout({ children }) {
                 links: [
                   {
                     label: "Partner registration",
-                    href: "#/partner/onboarding",
-                    leftSection: <Users />,
+                    href: "/dashboard/new-business/register-partner",
+                    leftSection: <UserCirclePlus />,
                   },
                   {
                     label: "Policy plan setup",
@@ -264,9 +265,15 @@ function DashboardLayout({ children }) {
                     leftSection: <Users />,
                   },
                   {
+                    label: "View Partner",
+                    href: "/dashboard/new-business/view-partner",
+                    leftSection: <Eye />,
+                    //active: isHydrated ? pathname?.includes("/dashboard/new-business/view-partner") : false,
+                  },
+                  {
                     label: "Leader setup",
                     href: "#/partner/directory",
-                    // leftSection: <Copy />,
+                    leftSection: <Copy />,
                   },
                   {
                     label: "Derivation config",
@@ -289,7 +296,7 @@ function DashboardLayout({ children }) {
                   {
                     label: "New business",
                     href: "#/reports/business",
-                    leftSection: <Copy />,
+                    leftSection: <User />,
                   },
                   {
                     label: "FR documents",
@@ -309,7 +316,7 @@ function DashboardLayout({ children }) {
                   {
                     label: "FR docs (Claims)",
                     href: "#/reports/claims",
-                    leftSection: <WifiNone/>,
+                    leftSection: <WifiNone />,
                   },
                   {
                     label: "COIs",
@@ -319,7 +326,7 @@ function DashboardLayout({ children }) {
                   {
                     label: "Pre issuance cancellation",
                     href: "#/reports/claims",
-                    leftSection: <WifiNone/>,
+                    leftSection: <WifiNone />,
                   },
                 ]
               },
@@ -375,7 +382,7 @@ function DashboardLayout({ children }) {
           )}
         >
           {/* Add your main content here */}
-         
+
           {children}
 
           {/* Fixed Red Submit Button - Top Right Corner */}
@@ -386,15 +393,15 @@ function DashboardLayout({ children }) {
                 const hasFirstRawLoader = !!firstRawLoaderFile;
                 const hasRawLoader = !!rawLoaderFile;
                 const currentFile = firstRawLoaderFile || rawLoaderFile;
-                
+
                 if (!activePartnerId || !currentFile) return true;
-                
+
                 // firstRawLoader: only needs partner + file
                 if (hasFirstRawLoader) return false;
-                
+
                 // rawLoader: needs partner + config + file  
                 if (hasRawLoader) return !activeConfig;
-                
+
                 return true;
               })()}
               className={clsx(
@@ -403,11 +410,11 @@ function DashboardLayout({ children }) {
                   const hasFirstRawLoader = !!firstRawLoaderFile;
                   const hasRawLoader = !!rawLoaderFile;
                   const currentFile = firstRawLoaderFile || rawLoaderFile;
-                  
+
                   if (!activePartnerId || !currentFile) return "bg-gray-400 cursor-not-allowed";
                   if (hasFirstRawLoader) return "bg-red-500 hover:bg-red-600 cursor-pointer";
                   if (hasRawLoader && activeConfig) return "bg-red-500 hover:bg-red-600 cursor-pointer";
-                  
+
                   return "bg-gray-400 cursor-not-allowed";
                 })()
               )}
@@ -416,20 +423,20 @@ function DashboardLayout({ children }) {
                 const hasFirstRawLoader = !!firstRawLoaderFile;
                 const hasRawLoader = !!rawLoaderFile;
                 const currentFile = firstRawLoaderFile || rawLoaderFile;
-                
+
                 if (isUploading) return "Uploading...";
                 if (!activePartnerId) return "Please select a partner first";
                 if (!currentFile) return "Please upload a file using firstRawLoader or RawLoader";
-                
+
                 if (hasFirstRawLoader) {
                   return `Submit ${currentFile.name} (firstRawLoader)`;
                 }
-                
+
                 if (hasRawLoader) {
                   if (!activeConfig) return "Please select a loader configuration from the table";
                   return `Submit ${currentFile.name} (rawLoader) with ${activeConfig.configName}`;
                 }
-                
+
                 return "Please upload a file";
               })()}
               onClick={handleQuickSubmit}
@@ -440,9 +447,9 @@ function DashboardLayout({ children }) {
                 <UploadSimple size={20} className="text-white" />
               )}
             </button>
-            
-            
-          
+
+
+
           </div>
 
         </main>
