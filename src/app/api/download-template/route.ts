@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     
     // Build the backend URL for downloading the template using the new API structure
     const baseUrl = process.env.API_BASE_URL || "http://localhost:8765";
-    const backendUrl = `${baseUrl}/config-generation-service/config-service/api/partners/${partnerId}/configs/${configId}/download`;
+    const backendUrl = `${baseUrl}/config-generation-service/config-service/api/download-file?partnerId=${partnerId}&configId=${configId}`;
     console.log('Backend URL:', backendUrl);
     
     const response = await fetch(backendUrl, {

@@ -21,7 +21,7 @@ export default function CustomTable() {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   
   // Use sorted data from context
   const allTableData = sortData(partnerLoaderConfigList);
